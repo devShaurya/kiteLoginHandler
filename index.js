@@ -1,26 +1,31 @@
+"use-strict";
 const { getRequestToken } = require("./getRequestToken");
 
 exports.handler = async (event, context, callback) => {
     var body = {
         error: null,
-        data: null,
+        requestToken: null,
         message: null,
     };
     var statusCode;
-    try {
-        const requestToken = await getRequestToken();
-        body["requestToken"] = requestToken;
-        statusCode = 201;
-    } catch (error) {
+
+    const { requestToken, err } = await getRequestToken();
+    body.requestToken = requestToken;
+    body.error = err;
+
+    if (body.error !== null) {
         statusCode = 500;
-        body.error = error;
+    } else {
+        statusCode = 200;
     }
-    return (response = {
+
+    const response = {
         statusCode: statusCode,
         headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
         },
         body: body,
-    });
+    };
+    return response;
 };
