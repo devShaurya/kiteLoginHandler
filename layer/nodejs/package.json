@@ -1,0 +1,16 @@
+{
+    "name": "my-puppeteer-layer",
+    "version": "1.0.0",
+    "description": "contains puppeteer and aws chrom lambda",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "create-layer": "pushd ../../ && rm -rf layer.zip && popd && npm i && cd ../ && zip -r ../layer.zip *"
+    },
+    "author": "Shaurya",
+    "license": "ISC",
+    "dependencies": {
+        "chrome-aws-lambda": "^10.1.0",
+        "puppeteer-core": "^10.4.0"
+    }
+}
