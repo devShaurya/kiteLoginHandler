@@ -2,7 +2,7 @@
 const { getAccessToken } = require("./getAccessToken");
 const { getRequestToken } = require("./getRequestToken");
 
-const handler = async (event, context, callback) => {
+exports.handler = async (event, context, callback) => {
     var body = {
         error: null,
         requestToken: null,
@@ -38,5 +38,3 @@ const handler = async (event, context, callback) => {
     };
     return response;
 };
-
-handler().then((response) => console.log(response));
