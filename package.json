@@ -1,18 +1,17 @@
 {
-  "name": "kiteloginhandler",
-  "version": "1.0.0",
-  "description": "get request token from kite login",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Shaurya",
-  "license": "ISC",
-  "dependencies": {
-    "chrome-aws-lambda": "^10.1.0",
-    "puppeteer-core": "^10.4.0"
-  },
-  "devDependencies": {
-    "puppeteer": "^10.4.0"
-  }
+    "name": "kiteloginhandler",
+    "version": "1.0.0",
+    "description": "get request token from kite login",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Shaurya",
+    "license": "ISC",
+    "devDependencies": {
+        "chrome-aws-lambda": "^10.1.0",
+        "puppeteer": "^10.4.0",
+        "puppeteer-core": "^10.4.0"
+    }
 }
