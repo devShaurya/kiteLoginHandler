@@ -4,6 +4,7 @@ const CryptoJS = require("crypto-js");
 const fetch = require("node-fetch");
 const kiteApiKey = process.env.KITE_API_KEY;
 const kiteApiSecret = process.env.KITE_API_SECRET;
+const kiteApiVersion = process.env.KITE_API_VERSION;
 const kiteAccessTokenUrl = "https://api.kite.trade/session/token";
 
 exports.getAccessToken = async (requestToken) => {
@@ -19,7 +20,7 @@ exports.getAccessToken = async (requestToken) => {
             "Content-Type",
             "application/x-www-form-urlencoded"
         );
-        requestHeaders.append("X-Kite-Version", "3");
+        requestHeaders.append("X-Kite-Version", kiteApiVersion);
 
         const urlencoded = new URLSearchParams();
         urlencoded.append("request_token", requestToken);

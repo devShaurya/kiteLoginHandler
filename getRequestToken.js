@@ -5,6 +5,7 @@ const kiteApiKey = process.env.KITE_API_KEY;
 const kiteUserId = process.env.KITE_USER_ID;
 const kiteUserPassword = process.env.KITE_USER_PASSWORD;
 const kiteUserPin = process.env.KITE_USER_PIN;
+const kiteApiVersion = process.env.KITE_API_VERSION;
 
 exports.getRequestToken = async () => {
     var browser,
@@ -21,7 +22,7 @@ exports.getRequestToken = async () => {
         const page = await browser.newPage();
         await page.waitForTimeout(1000);
         await page.goto(
-            `https://kite.zerodha.com/connect/login?v=3&api_key=${kiteApiKey}`
+            `https://kite.zerodha.com/connect/login?v=${kiteApiVersion}&api_key=${kiteApiKey}`
         );
         await page.waitForTimeout(1000);
         await page.focus("input[type='text']");
