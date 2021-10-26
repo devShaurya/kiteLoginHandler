@@ -2,14 +2,12 @@
 
 const CryptoJS = require("crypto-js");
 const fetch = require("node-fetch");
-const kiteApiKey = process.env.KITE_API_KEY;
-const kiteApiSecret = process.env.KITE_API_SECRET;
-const kiteApiVersion = process.env.KITE_API_VERSION;
 const kiteAccessTokenUrl = "https://api.kite.trade/session/token";
 
-exports.getAccessToken = async (requestToken) => {
+exports.getAccessToken = async ({ data, requestToken }) => {
     var accessToken = null,
         err = null;
+    const { kiteApiKey, kiteApiSecret, kiteApiVersion } = data;
     try {
         const checksum = CryptoJS.SHA256(
             kiteApiKey + requestToken + kiteApiSecret
@@ -37,7 +35,12 @@ exports.getAccessToken = async (requestToken) => {
         accessToken = await fetch(kiteAccessTokenUrl, requestOptions)
             .then((response) => response.json())
             .then(({ data }) => data.access_token)
-            .catch((error) => console.log("error", error));
+            .catch((error) => {
+                throw error;
+            });
+
+        console.log("Access Token", accessToken);
+        
     } catch (error) {
         err = error;
     }

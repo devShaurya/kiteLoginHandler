@@ -1,67 +1,29 @@
 "use-strict";
 
 const chromium = require("chrome-aws-lambda");
-const AWS = require("aws-sdk");
-AWS.config.update({ region: "us-east-2" });
+const { addExtra } = require("puppeteer-extra");
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+const UserAgent = require("user-agents");
+const puppeteerExtra = addExtra(chromium.puppeteer);
+puppeteerExtra.use(StealthPlugin());
 
-const functionName = process.env.AWS_LAMBDA_FUNCTION_NAME;
-const kiteApiKeyEncrypted = process.env.KITE_API_KEY;
-const kiteUserIdEncrypted = process.env.KITE_USER_ID;
-const kiteUserPasswordEncrypted = process.env.KITE_USER_PASSWORD;
-const kiteUserPinEncrypted = process.env.KITE_USER_PIN;
-const kiteApiVersion = process.env.KITE_API_VERSION;
-var kiteApiKey, kiteUserId, kiteUserPassword, kiteUserPin;
+// const AWS = require('aws-sdk');
+// var s3bucket = new AWS.S3({params: {Bucket: 'mybucket1600'}});
 
-const decryptEnvData = async () => {
-    if (!kiteApiKey || !kiteUserId || !kiteUserPassword || !kiteUserPin) {
-        // Decrypt code should run once and variables stored outside of the
-        // function handler so that these are decrypted once per container
-        const kms = new AWS.KMS();
-        try {
-            const reqKiteApiKey = {
-                CiphertextBlob: Buffer.from(kiteApiKeyEncrypted, "base64"),
-                EncryptionContext: { LambdaFunctionName: functionName },
-            };
-            var data = await kms.decrypt(reqKiteApiKey).promise();
-            kiteApiKey = data.Plaintext.toString("ascii");
+exports.getRequestToken = async (data) => {
+    const {
+        kiteApiKey,
+        kiteUserId,
+        kiteUserPassword,
+        kiteUserPin,
+        kiteApiVersion,
+    } = data;
 
-            const reqKiteUserId = {
-                CiphertextBlob: Buffer.from(kiteUserIdEncrypted, "base64"),
-                EncryptionContext: { LambdaFunctionName: functionName },
-            };
-            data = await kms.decrypt(reqKiteUserId).promise();
-            kiteUserId = data.Plaintext.toString("ascii");
-
-            const reqKiteUserPassword = {
-                CiphertextBlob: Buffer.from(
-                    kiteUserPasswordEncrypted,
-                    "base64"
-                ),
-                EncryptionContext: { LambdaFunctionName: functionName },
-            };
-            data = await kms.decrypt(reqKiteUserPassword).promise();
-            kiteUserPassword = data.Plaintext.toString("ascii");
-
-            const reqKiteUserPin = {
-                CiphertextBlob: Buffer.from(kiteUserPinEncrypted, "base64"),
-                EncryptionContext: { LambdaFunctionName: functionName },
-            };
-            data = await kms.decrypt(reqKiteUserPin).promise();
-            kiteUserPin = data.Plaintext.toString("ascii");
-        } catch (err) {
-            console.log("Decrypt error:", err);
-            throw err;
-        }
-    }
-};
-
-exports.getRequestToken = async () => {
-    await decryptEnvData();
     var browser,
         requestToken,
         err = null;
     try {
-        browser = await chromium.puppeteer.launch({
+        browser = await puppeteerExtra.launch({
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,
             executablePath: await chromium.executablePath,
@@ -69,7 +31,13 @@ exports.getRequestToken = async () => {
             ignoreHTTPSErrors: true,
         });
         const page = await browser.newPage();
-        await page.waitForTimeout(1000);
+
+        // config for timeout and captcha
+        const UA = new UserAgent();
+        await page.setUserAgent(UA.toString());
+        await page.setDefaultNavigationTimeout(0);
+        await page.setJavaScriptEnabled(true);
+
         await page.goto(
             `https://kite.zerodha.com/connect/login?v=${kiteApiVersion}&api_key=${kiteApiKey}`
         );
@@ -80,16 +48,56 @@ exports.getRequestToken = async () => {
         await page.keyboard.type(kiteUserPassword);
         await page.click("button[type='submit']");
 
+        // var name = Date.now();
+
+        // const buffer = await page.screenshot();
+
+        // const s3result1 = await s3bucket
+        //     .upload({
+        //         Key: `${name}.png`,
+        //         Body: buffer,
+        //         ContentType: "image/png",
+        //     })
+        //     .promise();
+
+        // console.log("S3 image URL:", s3result1.Location);
+
         await page.waitForTimeout(1000);
         await page.focus("input[type='password']");
         await page.keyboard.type(kiteUserPin);
         await page.click("button[type='submit']");
 
-        await page.waitForNavigation();
+        // const buffer2 = await page.screenshot();
+        // const s3result2 = s3bucket
+        //     .upload({
+        //         Key: `${name}-2.png`,
+        //         Body: buffer2,
+        //         ContentType: "image/png",
+        //     })
+        //     .promise();
+
+        // console.log("S3 image URL:", s3result2.Location);
+
+        await page.waitForTimeout(10000);
 
         const url = new URL(page.url());
         const searchParams = new URLSearchParams(url.search);
         requestToken = searchParams.get("request_token");
+        console.log({ url, requestToken });
+
+        // const buffer3 = await page.screenshot();
+        // const s3result3 = s3bucket
+        //     .upload({
+        //         Key: `${name}-3.png`,
+        //         Body: buffer3,
+        //         ContentType: "image/png",
+        //     })
+        //     .promise();
+
+        // console.log("S3 image URL:", s3result3.Location);
+        if (!requestToken) {
+            throw "No request-token";
+        }
     } catch (error) {
         err = error;
     } finally {
