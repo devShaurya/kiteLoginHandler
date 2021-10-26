@@ -13,6 +13,9 @@
         "chrome-aws-lambda": "^10.1.0",
         "crypto-js": "^4.1.1",
         "puppeteer": "^10.4.0",
-        "puppeteer-core": "^10.4.0"
+        "puppeteer-core": "^10.4.0",
+        "puppeteer-extra": "^3.2.3",
+        "puppeteer-extra-plugin-stealth": "^2.9.0",
+        "user-agents": "^1.0.811"
     }
 }
