@@ -1,17 +1,19 @@
 {
     "name": "my-puppeteer-layer",
     "version": "1.0.0",
-    "description": "contains crypto-js, puppeteer-core and aws-lambda-chrome",
+    "description": "contains crypto-js, puppeteer-core",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "create-layer": "pushd ../../ && rm -rf layer.zip && popd && npm i && cd ../ && zip -r ../layer.zip *"
+        "create-layer": "pushd ../../ && rm -rf layer.zip && popd && cd ../ && zip -r ../layer.zip *"
     },
     "author": "Shaurya",
     "license": "ISC",
     "dependencies": {
-        "chrome-aws-lambda": "^10.1.0",
         "crypto-js": "^4.1.1",
-        "puppeteer-core": "^10.4.0"
+        "puppeteer-core": "^10.4.0",
+        "puppeteer-extra": "^3.2.3",
+        "puppeteer-extra-plugin-stealth": "^2.9.0",
+        "user-agents": "^1.0.811"
     }
 }
