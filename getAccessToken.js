@@ -1,18 +1,14 @@
 "use-strict";
 
-const CryptoJS = require("crypto-js");
 const fetch = require("node-fetch");
 const kiteAccessTokenUrl = "https://api.kite.trade/session/token";
 
-exports.getAccessToken = async ({ data, requestToken }) => {
-    var accessToken = null,
+exports.getAccessToken = async (cryptoUtils, requestToken) => {
+    var encryptedAccessToken = null,
         err = null;
-    const { kiteApiKey, kiteApiSecret, kiteApiVersion } = data;
+    const { kiteApiKey, kiteApiVersion } = cryptoUtils;
     try {
-        const checksum = CryptoJS.SHA256(
-            kiteApiKey + requestToken + kiteApiSecret
-        ).toString(CryptoJS.enc.Hex);
-
+        const checksum = cryptoUtils.generateChecksum(requestToken);
         const requestHeaders = new fetch.Headers();
         requestHeaders.append(
             "Content-Type",
@@ -32,17 +28,16 @@ exports.getAccessToken = async ({ data, requestToken }) => {
             redirect: "follow",
         };
 
-        accessToken = await fetch(kiteAccessTokenUrl, requestOptions)
+        const accessToken = await fetch(kiteAccessTokenUrl, requestOptions)
             .then((response) => response.json())
             .then(({ data }) => data.access_token)
             .catch((error) => {
                 throw error;
             });
 
-        console.log("Access Token", accessToken);
-        
+        encryptedAccessToken = cryptoUtils.encrypt(accessToken);
     } catch (error) {
         err = error;
     }
-    return { accessToken, err };
+    return { encryptedAccessToken, err };
 };
