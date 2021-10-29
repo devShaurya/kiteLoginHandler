@@ -10,15 +10,14 @@ puppeteerExtra.use(StealthPlugin());
 // const AWS = require('aws-sdk');
 // var s3bucket = new AWS.S3({params: {Bucket: 'mybucket1600'}});
 
-exports.getRequestToken = async (data) => {
+exports.getRequestToken = async (cryptoUtils) => {
     const {
         kiteApiKey,
         kiteUserId,
         kiteUserPassword,
         kiteUserPin,
         kiteApiVersion,
-    } = data;
-
+    } = cryptoUtils;
     var browser,
         requestToken,
         err = null;
@@ -83,7 +82,7 @@ exports.getRequestToken = async (data) => {
         const url = new URL(page.url());
         const searchParams = new URLSearchParams(url.search);
         requestToken = searchParams.get("request_token");
-        console.log({ url, requestToken });
+        // console.log({ url, requestToken });
 
         // const buffer3 = await page.screenshot();
         // const s3result3 = s3bucket
